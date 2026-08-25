@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foothakimi - Réservation de terrain de foot</title>
+  <link rel="icon" href="images/logo.jpg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand"><img class="brand-logo" src="images/logo.jpg" alt="Logo Foothakimi"> Foothakimi</a>
+      <nav>
+        <a href="#reservation">Réserver</a>
+        <a href="#club">Club</a>
+        <a href="#infos">Infos</a>
+        <a href="admin.html" class="btn btn-ghost">Espace Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-lines"></div>
+    <div class="container hero-inner">
+      <p class="hero-tag">Terrain de football · <span id="hero-address">Oujda, Maroc</span></p>
+      <h1>Le football se joue <span class="accent">ici.</span></h1>
+      <p class="hero-sub">Réservez votre terrain, trouvez une équipe, complétez votre effectif et participez à la vie du club.</p>
+      <div class="hero-actions">
+        <a href="#club" class="btn btn-primary btn-lg">Découvrir le club</a>
+        <a href="#reservation" class="btn btn-ghost btn-lg">Réserver un terrain</a>
+      </div>
+      <div class="hero-badges">
+        <span>✓ Réservation de terrains</span>
+        <span>✓ Matchs entre équipes</span>
+        <span>✓ Recherche de joueurs</span>
+        <span>✓ Inscription au club</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="container" id="reservation">
+    <section class="booking" id="booking-card">
+      <div class="booking-head">
+        <h2>Réserver un créneau</h2>
+        <p id="price-line" class="price-line"></p>
+      </div>
+
+      <div class="steps">
+        <div class="step step-date">
+          <h3><span class="step-num">1</span> Choisissez le jour</h3>
+          <input type="date" id="date-input">
+          <p class="date-label" id="date-label">—</p>
+        </div>
+
+        <div class="step step-terrain">
+          <h3><span class="step-num">2</span> Choisissez le terrain</h3>
+          <div class="form-field">
+            <select id="terrain-select">
+              <option value="Terrain Principal">Terrain Principal — Synthétique</option>
+              <option value="Terrain Secondaire">Terrain Secondaire — Naturel</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="step step-time">
+          <h3><span class="step-num">3</span> Choisissez l'heure</h3>
+          <div class="slot-grid" id="slot-grid">
+            <div class="slot-loading">Chargement des créneaux…</div>
+          </div>
+          <p class="slot-hint" id="slot-hint"></p>
+        </div>
+
+        <div class="step step-info">
+          <h3><span class="step-num">4</span> Vos informations</h3>
+          <form id="reservation-form" novalidate>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="name">Nom complet *</label>
+                <input type="text" id="name" placeholder="Ex : Jean Kouadio" autocomplete="name">
+              </div>
+              <div class="form-field">
+                <label for="phone">Téléphone *</label>
+                <input type="tel" id="phone" placeholder="Ex : 07 00 00 00 00" autocomplete="tel">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="duration-select">Durée *</label>
+                <select id="duration-select">
+                  <option value="1">1 heure</option>
+                  <option value="1.5">1 heure 30</option>
+                  <option value="2">2 heures</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="notes">Remarques (facultatif)</label>
+                <textarea id="notes" rows="2" placeholder="Précisions, vestiaires, etc."></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="summary" id="summary">
+        <div class="summary-detail">
+          <span class="summary-label">Créneau</span>
+          <span class="summary-value" id="sum-slot">—</span>
+        </div>
+        <div class="summary-detail">
+          <span class="summary-label">Terrain / Durée</span>
+          <span class="summary-value" id="sum-terrain">—</span>
+        </div>
+        <div class="summary-detail">
+          <span class="summary-label">Tarif estimé</span>
+          <span class="summary-value" id="sum-price">—</span>
+        </div>
+        <button class="btn btn-primary btn-lg" id="submit-btn" disabled>Demander cette réservation</button>
+      </div>
+    </section>
+
+    <div class="toast" id="toast" hidden></div>
+  </main>
+
+  <div class="modal" id="success-modal" hidden>
+    <div class="modal-card">
+      <div class="modal-icon">📋</div>
+      <h2>Vérifiez la disponibilité avec le club</h2>
+      <p>Votre réservation doit être validée par le club avant d'être confirmée. Veuillez contacter le club afin de vérifier la disponibilité du créneau choisi.</p>
+      <div class="modal-recap" id="res-recap"></div>
+      <div class="modal-actions">
+        <a id="whatsapp-btn" href="#" target="_blank" rel="noopener" class="btn btn-whatsapp btn-lg">💬 Contacter le club</a>
+        <button class="btn btn-ghost btn-lg" id="modal-close">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="club-section container" id="club">
+    <h2 class="club-title">Espace Club</h2>
+    <p class="club-sub">Inscrivez vos enfants, trouvez des équipes adverses ou complétez votre effectif.</p>
+
+    <div class="club-tabs">
+      <button class="club-tab active" data-tab="tab-inscription">Inscrire un enfant</button>
+      <button class="club-tab" data-tab="tab-match">Trouver une équipe</button>
+      <button class="club-tab" data-tab="tab-joueur">Chercher un joueur</button>
+    </div>
+
+    <!-- ===== 1. Inscription enfant ===== -->
+    <div class="club-panel active" id="tab-inscription">
+      <div class="booking">
+        <div class="booking-head">
+          <h2>👶 Inscrire mon enfant</h2>
+        </div>
+        <p class="club-info-text">Remplissez le formulaire ci-dessous pour inscrire votre enfant au club Foothakimi.</p>
+        <div class="club-payment-info">
+          <strong>💳 Paiement :</strong> Les modalités de paiement seront communiquées par le club.
+        </div>
+        <form id="form-inscription" novalidate>
+          <div class="steps">
+            <div class="step">
+              <h3><span class="step-num">1</span> Informations de l'enfant</h3>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="insc-name">Nom et prénom *</label>
+                  <input type="text" id="insc-name" placeholder="Ex : Youssef El Amrani" required>
+                </div>
+                <div class="form-field">
+                  <label for="insc-dob">Date de naissance *</label>
+                  <input type="date" id="insc-dob" required>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="insc-categorie">Catégorie / niveau</label>
+                <select id="insc-categorie">
+                  <option value="">Choisir…</option>
+                  <option value="U6-U7">U6 - U7 (6-7 ans)</option>
+                  <option value="U8-U9">U8 - U9 (8-9 ans)</option>
+                  <option value="U10-U11">U10 - U11 (10-11 ans)</option>
+                  <option value="U12-U13">U12 - U13 (12-13 ans)</option>
+                  <option value="U14-U15">U14 - U15 (14-15 ans)</option>
+                  <option value="U16-U17">U16 - U17 (16-17 ans)</option>
+                  <option value="Senior">Senior (18+)</option>
+                  <option value="Debutant">Débutant (tout âge)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="step">
+              <h3><span class="step-num">2</span> Informations du parent / tuteur</h3>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="insc-parent">Nom et prénom du parent *</label>
+                  <input type="text" id="insc-parent" placeholder="Ex : Ahmed El Amrani" required>
+                </div>
+                <div class="form-field">
+                  <label for="insc-phone">Téléphone *</label>
+                  <input type="tel" id="insc-phone" placeholder="Ex : 06 00 00 00 00" required>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="insc-email">Email</label>
+                <input type="email" id="insc-email" placeholder="Ex : parent@email.com">
+              </div>
+              <div class="form-field">
+                <label for="insc-notes">Informations complémentaires</label>
+                <textarea id="insc-notes" rows="3" placeholder="Allergies, besoins particuliers, expérience sportive…"></textarea>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" id="insc-submit">Envoyer l'inscription</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== 2. Trouver une équipe adverse ===== -->
+    <div class="club-panel" id="tab-match">
+      <div class="booking">
+        <div class="booking-head">
+          <h2>⚽ Trouver une équipe adverse</h2>
+        </div>
+        <p class="club-info-text">Vous avez une équipe et vous cherchez un adversaire ? Envoyez votre demande et le club vous aidera à trouver une équipe disponible.</p>
+        <form id="form-match" novalidate>
+          <div class="steps">
+            <div class="step">
+              <h3><span class="step-num">1</span> Informations sur l'équipe</h3>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="match-team">Nom de l'équipe *</label>
+                  <input type="text" id="match-team" placeholder="Ex : FC Oujda" required>
+                </div>
+                <div class="form-field">
+                  <label for="match-categorie">Catégorie / niveau *</label>
+                  <select id="match-categorie" required>
+                    <option value="">Choisir…</option>
+                    <option value="U10-U11">U10 - U11</option>
+                    <option value="U12-U13">U12 - U13</option>
+                    <option value="U14-U15">U14 - U15</option>
+                    <option value="U16-U17">U16 - U17</option>
+                    <option value="Senior">Senior</option>
+                    <option value="Mixte">Mixte / Loisir</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <h3><span class="step-num">2</span> Informations sur le match</h3>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="match-date">Date souhaitée *</label>
+                  <input type="date" id="match-date" required min="">
+                </div>
+                <div class="form-field">
+                  <label for="match-hour">Heure souhaitée *</label>
+                  <input type="time" id="match-hour" required>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="match-type">Type de match *</label>
+                <select id="match-type" required>
+                  <option value="">Choisir…</option>
+                  <option value="Amical">Match amical</option>
+                  <option value="Competition">Match de compétition</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="step">
+              <h3><span class="step-num">3</span> Contact</h3>
+              <div class="form-field">
+                <label for="match-contact">Numéro WhatsApp / téléphone *</label>
+                <input type="tel" id="match-contact" placeholder="Ex : 06 XX XX XX XX" required>
+              </div>
+              <div class="form-field">
+                <label for="match-notes">Informations complémentaires <span class="text-dim">(facultatif)</span></label>
+                <textarea id="match-notes" rows="2" placeholder="Règles spéciales, vestiaires, arbitre…"></textarea>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" id="match-submit">Publier ma demande</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== 3. Je cherche un joueur ===== -->
+    <div class="club-panel" id="tab-joueur">
+      <div class="booking">
+        <div class="booking-head">
+          <h2>🔎 Je cherche un joueur</h2>
+        </div>
+        <p class="club-info-text">Votre équipe a besoin d'un renfort ? Recherchez un joueur ou un gardien pour compléter votre équipe.</p>
+        <form id="form-joueur" novalidate>
+          <div class="steps">
+            <div class="step">
+              <h3><span class="step-num">1</span> Informations sur l'équipe</h3>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="joueur-team">Nom de l'équipe *</label>
+                  <input type="text" id="joueur-team" placeholder="Ex : FC Oujda" required>
+                </div>
+                <div class="form-field">
+                  <label for="joueur-categorie">Catégorie / niveau *</label>
+                  <select id="joueur-categorie" required>
+                    <option value="">Choisir…</option>
+                    <option value="U10-U11">U10 - U11</option>
+                    <option value="U12-U13">U12 - U13</option>
+                    <option value="U14-U15">U14 - U15</option>
+                    <option value="U16-U17">U16 - U17</option>
+                    <option value="Senior">Senior</option>
+                    <option value="Mixte">Mixte / Loisir</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <h3><span class="step-num">2</span> Recherche</h3>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="joueur-type">Je recherche *</label>
+                  <select id="joueur-type" required>
+                    <option value="">Choisir…</option>
+                    <option value="Joueur">Joueur</option>
+                    <option value="Gardien">Gardien</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="joueur-count">Nombre de joueurs recherchés *</label>
+                  <input type="number" id="joueur-count" min="1" max="20" placeholder="Ex : 1" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <h3><span class="step-num">3</span> Informations sur le match</h3>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="joueur-date">Date du match *</label>
+                  <input type="date" id="joueur-date" required min="">
+                </div>
+                <div class="form-field">
+                  <label for="joueur-hour">Heure du match *</label>
+                  <input type="time" id="joueur-hour" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <h3><span class="step-num">4</span> Paiement</h3>
+              <div class="form-field">
+                <label>Le joueur doit-il payer pour participer ? *</label>
+                <div class="radio-group">
+                  <label class="radio-label"><input type="radio" name="joueur-payment" value="Non" checked> Non</label>
+                  <label class="radio-label"><input type="radio" name="joueur-payment" value="Oui"> Oui</label>
+                </div>
+              </div>
+              <div class="form-field hidden" id="joueur-price-field">
+                <label for="joueur-price">Montant demandé (DH) *</label>
+                <input type="text" id="joueur-price" placeholder="Ex : 50 DH">
+              </div>
+            </div>
+
+            <div class="step">
+              <h3><span class="step-num">5</span> Contact</h3>
+              <div class="form-field">
+                <label for="joueur-contact">Numéro WhatsApp / téléphone *</label>
+                <input type="tel" id="joueur-contact" placeholder="Ex : 06 XX XX XX XX" required>
+              </div>
+              <div class="form-field">
+                <label for="joueur-notes">Informations complémentaires <span class="text-dim">(facultatif)</span></label>
+                <textarea id="joueur-notes" rows="2" placeholder="Niveau requis, entraînements…"></textarea>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" id="joueur-submit">Publier ma recherche</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="toast" id="club-toast" hidden></div>
+  </section>
+
+  <section class="info container" id="infos">
+    <h2>Informations</h2>
+    <div class="info-grid">
+      <div class="info-card">
+        <span class="info-emoji">🏟️</span>
+        <h4>Terrain de qualité</h4>
+        <p>Pelouse synthétique homologuée, éclairage LED et vestiaires modernes.</p>
+      </div>
+      <div class="info-card">
+        <span class="info-emoji">🕐</span>
+        <h4>Horaires</h4>
+        <p>Ouvert tous les jours de 10h00 à 23h00. Créneaux d'une heure.</p>
+      </div>
+      <div class="info-card">
+        <span class="info-emoji">💰</span>
+        <h4>Tarif</h4>
+        <p>Tarif fixe à l'heure, paiement sur place avant le match.</p>
+      </div>
+      <div class="info-card">
+        <span class="info-emoji">📍</span>
+        <h4>Contact</h4>
+        <p id="contact-line"></p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>⚽ Foothakimi — © <span id="year"></span> Tous droits réservés.</span>
+      <a href="admin.html">Accès administrateur</a>
+    </div>
+  </footer>
+
+  <script src="js/store.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

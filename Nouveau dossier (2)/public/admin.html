@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foothakimi - Espace Admin</title>
+  <link rel="icon" href="images/logo.jpg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand"><img class="brand-logo" src="images/logo.jpg" alt="Logo Foothakimi"> Foothakimi <span class="text-dim" style="font-size:0.8rem;font-weight:600;">· Admin</span></a>
+      <nav>
+        <a href="index.html">← Site public</a>
+        <button class="btn btn-ghost hidden" id="logout-btn">Se déconnecter</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+
+    <section class="admin-login" id="login-view">
+      <h2>🔐 Espace Admin</h2>
+      <p class="text-dim" style="margin-bottom:18px;">Connectez-vous pour gérer les réservations.</p>
+      <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
+      <button class="btn btn-primary" id="login-btn">Se connecter</button>
+
+    </section>
+
+    <section id="dashboard-view" class="hidden">
+      <div class="admin-title">
+        <h2>📋 Gestion du club</h2>
+        <button class="btn btn-primary" id="export-btn">⬇ Exporter PDF</button>
+      </div>
+
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <div class="admin-tabs" id="admin-tabs">
+        <button class="admin-tab active" data-tab="tab-reservations">Réservations terrain</button>
+        <button class="admin-tab" data-tab="tab-inscriptions">Inscriptions enfants</button>
+        <button class="admin-tab" data-tab="tab-matchs">Demandes de match</button>
+        <button class="admin-tab" data-tab="tab-joueurs">Recherche joueurs</button>
+      </div>
+
+      <!-- Réservations terrain -->
+      <div class="admin-panel active" id="tab-reservations">
+        <div class="admin-tools">
+          <input type="date" id="filter-date" title="Filtrer par date">
+          <select id="filter-status" title="Filtrer par statut">
+            <option value="">Tous les statuts</option>
+            <option value="pending">En attente</option>
+            <option value="confirmed">Confirmée</option>
+            <option value="rejected">Refusée</option>
+          </select>
+          <input type="text" id="search-input" class="search" placeholder="Rechercher par nom ou téléphone…">
+          <button class="btn btn-ghost" id="clear-filter-btn">Effacer les filtres</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Terrain</th>
+                <th>Durée</th>
+                <th>Nom</th>
+                <th>Téléphone</th>
+                <th>Tarif</th>
+                <th>Remarques</th>
+                <th>Créé le</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="res-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Inscriptions enfants -->
+      <div class="admin-panel" id="tab-inscriptions">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Enfant</th>
+                <th>Date naissance</th>
+                <th>Catégorie</th>
+                <th>Parent</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Notes</th>
+                <th>Créé le</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="insc-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Demandes de match -->
+      <div class="admin-panel" id="tab-matchs">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Équipe</th>
+                <th>Catégorie</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Type</th>
+                <th>Contact</th>
+                <th>Notes</th>
+                <th>Créé le</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="match-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recherche joueurs -->
+      <div class="admin-panel" id="tab-joueurs">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Équipe</th>
+                <th>Catégorie</th>
+                <th>Recherche</th>
+                <th>Nombre</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Paiement</th>
+                <th>Montant</th>
+                <th>Contact</th>
+                <th>Notes</th>
+                <th>Créé le</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="joueur-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/store.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

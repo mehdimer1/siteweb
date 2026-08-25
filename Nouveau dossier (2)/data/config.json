@@ -1,0 +1,12 @@
+{
+  "siteName": "Foothakimi",
+  "siteSlogan": "Réservez votre terrain en quelques secondes",
+  "currency": "DH",
+  "pricePerHour": 200,
+  "openHour": 8,
+  "closeHour": 23,
+  "maxAdvanceDays": 30,
+  "adminPassword": "admin123",
+  "phone": "+212 665-871468",
+  "address": "Oujda, Maroc"
+}
