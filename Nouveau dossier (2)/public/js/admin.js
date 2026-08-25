@@ -380,6 +380,24 @@
     if (Store.isLoggedIn()) {
       showDashboard();
     }
+
+    /* ---- Hamburger menu ---- */
+    var navToggle = $('nav-toggle');
+    var navMenu = $('nav-menu');
+    if (navToggle && navMenu) {
+      navToggle.addEventListener('click', function () {
+        var open = navMenu.classList.toggle('open');
+        navToggle.classList.toggle('open', open);
+        navToggle.setAttribute('aria-expanded', open);
+      });
+      navMenu.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          navMenu.classList.remove('open');
+          navToggle.classList.remove('open');
+          navToggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
   }
 
   init();
