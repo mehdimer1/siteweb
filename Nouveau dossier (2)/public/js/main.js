@@ -81,7 +81,7 @@
     dateInput.value = Store.todayStr();
     dateInput.addEventListener('change', function () { loadSlots(dateInput.value); });
 
-    $('terrain-select').addEventListener('change', updateSummary);
+    $('terrain-select').addEventListener('change', function () { loadSlots(dateInput.value); });
     $('duration-select').addEventListener('change', updateSummary);
 
     $('submit-btn').addEventListener('click', submitReservation);
@@ -295,7 +295,7 @@
     grid.innerHTML = '<div class="slot-loading">Chargement des cr\u00e9neaux\u2026</div>';
     $('slot-hint').textContent = '';
 
-    var data = Store.getSlots(date);
+    var data = Store.getSlots(date, $('terrain-select').value);
     if (data.error) {
       grid.innerHTML = '';
       showToast(data.error, false);

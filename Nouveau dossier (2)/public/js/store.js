@@ -154,12 +154,13 @@
     localStorage.setItem(KEYS.reservations, JSON.stringify(list));
   }
 
-  function getSlots(date) {
+  function getSlots(date, terrain) {
     var config = getConfig();
     if (!isValidDateStr(date)) return { error: 'Date invalide' };
+    terrain = terrain || 'Terrain A';
 
     var reservations = loadReservations().filter(
-      function(r) { return r.date === date && (r.status === 'confirmed' || r.status === 'pending'); }
+      function(r) { return r.date === date && r.terrain === terrain && (r.status === 'confirmed' || r.status === 'pending'); }
     );
     var now = todayStr();
     var nowHour = new Date().getHours();
@@ -218,7 +219,7 @@
     var reservations = loadReservations();
     var conflict = reservations.find(
       function(r) {
-        return r.date === date && r.time === time &&
+        return r.date === date && r.time === time && r.terrain === terrain &&
           (r.status === 'confirmed' || r.status === 'pending');
       }
     );
