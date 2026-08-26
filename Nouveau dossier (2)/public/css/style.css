@@ -482,8 +482,19 @@ td.notes-cell { white-space: normal; max-width: 200px; color: var(--text-dim); }
   .admin-tools input[type="date"] { width: 100%; }
   .admin-tools .search { min-width: 100%; }
   .admin-tools .btn { width: 100%; }
-  .admin-tabs { gap: 4px; }
-  .admin-tab { padding: 8px 10px; font-size: 0.75rem; flex: 1; min-width: 0; text-align: center; white-space: nowrap; }
+
+  /* --- Admin tabs: 2x2 grid, full text visible --- */
+  .admin-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; }
+  .admin-tab {
+    padding: 12px 10px; border-radius: var(--radius-sm); border: 1px solid var(--card-border);
+    background: var(--card); color: var(--text-dim); font-family: inherit;
+    font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center; white-space: normal; line-height: 1.3;
+  }
+  .admin-tab:hover { border-color: var(--lime); color: var(--lime); }
+  .admin-tab.active { background: var(--lime); color: #0c2b14; border-color: var(--lime); }
+
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .stat-card { padding: 12px; }
   .stat-num { font-size: 1.3rem; }
@@ -491,12 +502,12 @@ td.notes-cell { white-space: normal; max-width: 200px; color: var(--text-dim); }
   .admin-login { margin: 32px auto; padding: 24px 18px; }
   .admin-login h2 { font-size: 1.2rem; }
 
-  /* --- Tables: scrollable, contained --- */
-  .table-wrap { max-width: 100%; }
-  .table-wrap table { font-size: 0.82rem; }
-  th, td { padding: 8px 10px; }
+  /* --- Tables: horizontal scroll contained --- */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; }
+  .table-wrap table { min-width: 700px; font-size: 0.82rem; }
+  th, td { padding: 8px 10px; white-space: nowrap; }
   th { font-size: 0.68rem; }
-  td.notes-cell { max-width: 140px; }
+  td.notes-cell { max-width: 140px; white-space: normal; }
 }
 
 /* ---------- DESKTOP (768px+) — inline nav, no hamburger ---------- */
@@ -533,6 +544,7 @@ td.notes-cell { white-space: normal; max-width: 200px; color: var(--text-dim); }
   .slot { padding: 9px 4px; font-size: 0.8rem; }
   .slot .slot-sub { font-size: 0.68rem; }
   .modal-card { padding: 20px 14px; }
-  .admin-tab { padding: 7px 8px; font-size: 0.7rem; }
+  .admin-tab { padding: 10px 8px; font-size: 0.78rem; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .table-wrap table { min-width: 600px; }
 }
