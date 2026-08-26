@@ -390,7 +390,7 @@
         navToggle.classList.toggle('open', open);
         navToggle.setAttribute('aria-expanded', open);
       });
-      navMenu.querySelectorAll('a').forEach(function (link) {
+      navMenu.querySelectorAll('a, button').forEach(function (link) {
         link.addEventListener('click', function () {
           navMenu.classList.remove('open');
           navToggle.classList.remove('open');
