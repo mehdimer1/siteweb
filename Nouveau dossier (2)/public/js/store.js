@@ -13,7 +13,7 @@
     siteSlogan: 'Réservez votre terrain en quelques secondes',
     currency: 'DH',
     pricePerHour: 200,
-    openHour: 8,
+    openHour: 10,
     closeHour: 23,
     maxAdvanceDays: 30,
     adminPassword: 'admin123',

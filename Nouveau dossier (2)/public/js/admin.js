@@ -295,25 +295,76 @@
     }
   }
 
+  function getActiveTab() {
+    var active = document.querySelector('.admin-tab.active');
+    return active ? active.dataset.tab : 'tab-reservations';
+  }
+
   function exportPDF() {
-    var list = filtered();
-    if (list.length === 0) {
-      showToast('Rien \u00e0 exporter.', false);
-      return;
-    }
+    var activeTab = getActiveTab();
 
     var now = new Date();
     var exportDate = prettyDate(Store.todayStr()) + ' \u00e0 ' + Store.pad(now.getHours()) + ':' + Store.pad(now.getMinutes());
-    var totalSlots = list.length;
+    var printScript = '<' + 'script>window.print();<\/script>';
+
+    if (activeTab === 'tab-reservations') {
+      exportReservations(exportDate, printScript);
+    } else if (activeTab === 'tab-inscriptions') {
+      exportInscriptions(exportDate, printScript);
+    } else if (activeTab === 'tab-matchs') {
+      exportMatchs(exportDate, printScript);
+    } else if (activeTab === 'tab-joueurs') {
+      exportJoueurs(exportDate, printScript);
+    }
+  }
+
+  function openPrintWindow(title, html) {
+    var win = window.open('', '_blank', 'width=900,height=650');
+    if (!win) {
+      showToast('Autorisez les fen\u00eAtres pop-up pour exporter.', false);
+      return;
+    }
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+  }
+
+  function printStyle() {
+    return '*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#111;font-size:12px;padding:24px}' +
+      '.header{border-bottom:3px solid #16a34a;padding-bottom:12px;margin-bottom:16px}.header h1{font-size:22px;color:#16a34a}' +
+      '.header p{color:#555;margin-top:4px;font-size:12px}.count{font-weight:bold;margin-bottom:12px}' +
+      'table{width:100%;border-collapse:collapse}th,td{border:1px solid #bbb;padding:6px 8px;text-align:left;font-size:11px}' +
+      'th{background:#eaf5ee}tbody tr:nth-child(even){background:#f7faf8}' +
+      '.footer{margin-top:16px;font-size:11px;color:#777;text-align:center}' +
+      '@media print{body{padding:0}.no-print{display:none}}';
+  }
+
+  function printShell(title, exportDate, countLabel, tableHtml, printScript) {
+    return '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Foothakimi - ' + title + '</title>' +
+      '<style>' + printStyle() + '</style></head><body>' +
+      '<div class="no-print" style="margin-bottom:12px;text-align:right;">' +
+      '<button onclick="window.print()" style="padding:8px 16px;font-size:14px;cursor:pointer;">\ud83d\udda8 Imprimer / Enregistrer en PDF</button></div>' +
+      '<div class="header"><h1>\u26bd Foothakimi \u2014 ' + title + '</h1>' +
+      '<p>Export\u00e9 le ' + exportDate + '</p></div>' +
+      '<p class="count">' + countLabel + '</p>' +
+      tableHtml +
+      '<div class="footer">Document g\u00e9n\u00e9r\u00e9 par Foothakimi \u2014 le ' + exportDate + '</div>' +
+      printScript + '</body></html>';
+  }
+
+  function exportReservations(exportDate, printScript) {
+    var list = filtered();
+    if (list.length === 0) { showToast('Rien \u00e0 exporter.', false); return; }
+
     var totalPrice = 0;
     list.forEach(function (r) { totalPrice += (r.totalPrice || r.pricePerHour || 0); });
     var priceLabel = list[0] && list[0].currency ? list[0].currency : '';
 
     var rows = list.map(function (r) {
-      var statusText = r.status === 'pending' ? 'En attente' : r.status === 'confirmed' ? 'Confirm\u00e9e' : 'Refus\u00e9e';
+      var st = r.status === 'pending' ? 'En attente' : r.status === 'confirmed' ? 'Confirm\u00e9e' : 'Refus\u00e9e';
       return '<tr>' +
         '<td>' + escapeHtml(r.id) + '</td>' +
-        '<td>' + statusText + '</td>' +
+        '<td>' + st + '</td>' +
         '<td>' + prettyDate(r.date) + '</td>' +
         '<td>' + Store.pad(r.time) + ':00 - ' + Store.pad(r.time + 1) + ':00</td>' +
         '<td>' + escapeHtml(r.terrain || '\u2014') + '</td>' +
@@ -325,32 +376,81 @@
         '</tr>';
     }).join('');
 
-    var html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Foothakimi - R\u00e9servations</title>' +
-      '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#111;font-size:12px;padding:24px}' +
-      '.header{border-bottom:3px solid #16a34a;padding-bottom:12px;margin-bottom:16px}.header h1{font-size:22px;color:#16a34a}' +
-      '.header p{color:#555;margin-top:4px;font-size:12px}.count{font-weight:bold;margin-bottom:12px}' +
-      'table{width:100%;border-collapse:collapse}th,td{border:1px solid #bbb;padding:6px 8px;text-align:left;font-size:11px}' +
-      'th{background:#eaf5ee}tbody tr:nth-child(even){background:#f7faf8}' +
-      '.footer{margin-top:16px;font-size:11px;color:#777;text-align:center}' +
-      '@media print{body{padding:0}.no-print{display:none}}</style></head><body>' +
-      '<div class="no-print" style="margin-bottom:12px;text-align:right;">' +
-      '<button onclick="window.print()" style="padding:8px 16px;font-size:14px;cursor:pointer;">\ud83d\udda8 Imprimer / Enregistrer en PDF</button></div>' +
-      '<div class="header"><h1>\u26bd Foothakimi \u2014 Liste des r\u00e9servations</h1>' +
-      '<p>Export\u00e9 le ' + exportDate + '</p></div>' +
-      '<p class="count">Total : <span style="color:#16a34a;">' + totalSlots + ' r\u00e9servation(s)</span> \u00b7 ' + formatPrice(totalPrice, priceLabel) + '</p>' +
-      '<table><thead><tr><th>Code</th><th>Statut</th><th>Date</th><th>Heure</th><th>Terrain</th><th>Dur\u00e9e</th><th>Nom</th><th>T\u00e9l\u00e9phone</th><th>Tarif</th><th>Remarques</th></tr></thead>' +
-      '<tbody>' + rows + '</tbody></table>' +
-      '<div class="footer">Document g\u00e9n\u00e9r\u00e9 par Foothakimi \u2014 le ' + exportDate + '</div>' +
-      '<script>window.print();<\/script></body></html>';
+    var table = '<table><thead><tr><th>Code</th><th>Statut</th><th>Date</th><th>Heure</th><th>Terrain</th><th>Dur\u00e9e</th><th>Nom</th><th>T\u00e9l\u00e9phone</th><th>Tarif</th><th>Remarques</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var countLabel = 'Total : <span style="color:#16a34a;">' + list.length + ' r\u00e9servation(s)</span> \u00b7 ' + formatPrice(totalPrice, priceLabel);
+    openPrintWindow('R\u00e9servations', printShell('Liste des r\u00e9servations', exportDate, countLabel, table, printScript));
+  }
 
-    var win = window.open('', '_blank', 'width=900,height=650');
-    if (!win) {
-      showToast('Autorisez les fen\u00eAtres pop-up pour exporter.', false);
-      return;
-    }
-    win.document.write(html);
-    win.document.close();
-    win.focus();
+  function exportInscriptions(exportDate, printScript) {
+    var list = Store.getClubForms('inscription');
+    if (list.length === 0) { showToast('Rien \u00e0 exporter.', false); return; }
+
+    var rows = list.map(function (r) {
+      return '<tr>' +
+        '<td>' + escapeHtml(r.id) + '</td>' +
+        '<td>' + escapeHtml(r.childName) + '</td>' +
+        '<td>' + escapeHtml(r.dateOfBirth) + '</td>' +
+        '<td>' + escapeHtml(r.categorie || '\u2014') + '</td>' +
+        '<td>' + escapeHtml(r.parentName) + '</td>' +
+        '<td>' + escapeHtml(r.phone) + '</td>' +
+        '<td>' + escapeHtml(r.email || '\u2014') + '</td>' +
+        '<td>' + (r.notes ? escapeHtml(r.notes) : '\u2014') + '</td>' +
+        '<td>' + fmtDateTime(r.createdAt) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    var table = '<table><thead><tr><th>Code</th><th>Enfant</th><th>Date naissance</th><th>Cat\u00e9gorie</th><th>Parent</th><th>T\u00e9l\u00e9phone</th><th>Email</th><th>Notes</th><th>Cr\u00e9\u00e9 le</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var countLabel = 'Total : <span style="color:#16a34a;">' + list.length + ' inscription(s)</span>';
+    openPrintWindow('Inscriptions', printShell('Liste des inscriptions enfants', exportDate, countLabel, table, printScript));
+  }
+
+  function exportMatchs(exportDate, printScript) {
+    var list = Store.getClubForms('match');
+    if (list.length === 0) { showToast('Rien \u00e0 exporter.', false); return; }
+
+    var rows = list.map(function (r) {
+      return '<tr>' +
+        '<td>' + escapeHtml(r.id) + '</td>' +
+        '<td>' + escapeHtml(r.teamName) + '</td>' +
+        '<td>' + escapeHtml(r.categorie || '\u2014') + '</td>' +
+        '<td>' + escapeHtml(r.date) + '</td>' +
+        '<td>' + escapeHtml(r.hour || '\u2014') + '</td>' +
+        '<td>' + escapeHtml(r.matchType || '\u2014') + '</td>' +
+        '<td>' + escapeHtml(r.contact) + '</td>' +
+        '<td>' + (r.notes ? escapeHtml(r.notes) : '\u2014') + '</td>' +
+        '<td>' + fmtDateTime(r.createdAt) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    var table = '<table><thead><tr><th>Code</th><th>\u00c9quipe</th><th>Cat\u00e9gorie</th><th>Date</th><th>Heure</th><th>Type</th><th>Contact</th><th>Notes</th><th>Cr\u00e9\u00e9 le</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var countLabel = 'Total : <span style="color:#16a34a;">' + list.length + ' demande(s)</span>';
+    openPrintWindow('Matchs', printShell('Liste des demandes de match', exportDate, countLabel, table, printScript));
+  }
+
+  function exportJoueurs(exportDate, printScript) {
+    var list = Store.getClubForms('joueur');
+    if (list.length === 0) { showToast('Rien \u00e0 exporter.', false); return; }
+
+    var rows = list.map(function (r) {
+      return '<tr>' +
+        '<td>' + escapeHtml(r.id) + '</td>' +
+        '<td>' + escapeHtml(r.teamName) + '</td>' +
+        '<td>' + escapeHtml(r.categorie || '\u2014') + '</td>' +
+        '<td>' + escapeHtml(r.playerType) + '</td>' +
+        '<td>' + escapeHtml(r.count) + '</td>' +
+        '<td>' + escapeHtml(r.date) + '</td>' +
+        '<td>' + escapeHtml(r.hour || '\u2014') + '</td>' +
+        '<td>' + escapeHtml(r.payment) + '</td>' +
+        '<td>' + (r.price ? escapeHtml(r.price) + ' DH' : '\u2014') + '</td>' +
+        '<td>' + escapeHtml(r.contact) + '</td>' +
+        '<td>' + (r.notes ? escapeHtml(r.notes) : '\u2014') + '</td>' +
+        '<td>' + fmtDateTime(r.createdAt) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    var table = '<table><thead><tr><th>Code</th><th>\u00c9quipe</th><th>Cat\u00e9gorie</th><th>Recherche</th><th>Nombre</th><th>Date</th><th>Heure</th><th>Paiement</th><th>Montant</th><th>Contact</th><th>Notes</th><th>Cr\u00e9\u00e9 le</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var countLabel = 'Total : <span style="color:#16a34a;">' + list.length + ' recherche(s)</span>';
+    openPrintWindow('Joueurs', printShell('Liste des recherches de joueurs', exportDate, countLabel, table, printScript));
   }
 
   function init() {
